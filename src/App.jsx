@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import  generarCuotas  from "./utils/cuotas";
+import generarCuotas from "./utils/cuotas";
 import NuevaCompra from "./components/NuevaCompra";
 import MesSelector from "./components/MesSelector";
 import CuotasMes from "./components/CuotasMes";
@@ -26,6 +26,12 @@ export default function App() {
 
   const totalMes = cuotasMes.reduce((a, b) => a + b.monto, 0);
 
+  function eliminarCompra(id) {
+    if (!confirm("¿Eliminar esta compra y todas sus cuotas?")) return;
+    setCompras(compras.filter(c => c.id !== id));
+  }
+
+
   return (
     <div className="min-h-screen bg-slate-100 p-4 max-w-md mx-auto">
       <h1 className="text-2xl font-bold text-center mb-4">
@@ -41,7 +47,7 @@ export default function App() {
         </div>
       </div>
 
-      <CuotasMes cuotas={cuotasMes} />
+      <CuotasMes cuotas={cuotasMes} onEliminar={eliminarCompra}/>
 
       <NuevaCompra onAdd={c => setCompras([...compras, c])} />
     </div>
