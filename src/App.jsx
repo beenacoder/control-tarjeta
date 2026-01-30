@@ -3,14 +3,15 @@ import generarCuotas from "./utils/cuotas";
 import NuevaCompra from "./components/NuevaCompra";
 import MesSelector from "./components/MesSelector";
 import CuotasMes from "./components/CuotasMes";
+import ListadoCompras from "./components/ListadoCompras";
+
 
 export default function App() {
-  const [compras, setCompras] = useState([]);
+  // const [compras, setCompras] = useState([]);
   const [mesVista, setMesVista] = useState(new Date());
-
-  useEffect(() => {
-    setCompras(JSON.parse(localStorage.getItem("compras")) || []);
-  }, []);
+  const [compras, setCompras] = useState(() => {
+    return JSON.parse(localStorage.getItem("compras")) || [];
+  });
 
   useEffect(() => {
     localStorage.setItem("compras", JSON.stringify(compras));
@@ -40,6 +41,9 @@ export default function App() {
 
       <MesSelector mes={mesVista} setMes={setMesVista} />
 
+      <ListadoCompras compras={compras} onEliminar={eliminarCompra} />
+
+
       <div className="bg-white rounded-xl shadow p-4 mb-4 text-center">
         <div className="text-gray-500 text-sm">Total del mes</div>
         <div className="text-3xl font-bold">
@@ -47,9 +51,11 @@ export default function App() {
         </div>
       </div>
 
-      <CuotasMes cuotas={cuotasMes} onEliminar={eliminarCompra}/>
+      <CuotasMes cuotas={cuotasMes} onEliminar={eliminarCompra} />
 
       <NuevaCompra onAdd={c => setCompras([...compras, c])} />
+      {console.table(compras.flatMap(generarCuotas))}
+
     </div>
   );
 }
