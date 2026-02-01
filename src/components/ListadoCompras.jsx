@@ -19,8 +19,8 @@ export default function ListadoCompras({ compras, onEliminar }) {
                     <div>
                         <div className="font-medium">{c.descripcion}</div>
                         <div className="text-sm text-gray-500">
-                            {c.cuotaActual}/{c.cuotasTotales} · $
-                            {c.montoTotal.toFixed(2)}
+                            {c.cuotaActual}/{c.cuotas} · $
+                            {c.monto}
                         </div>
                     </div>
 
