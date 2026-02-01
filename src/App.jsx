@@ -4,6 +4,8 @@ import NuevaCompra from "./components/NuevaCompra";
 import MesSelector from "./components/MesSelector";
 import CuotasMes from "./components/CuotasMes";
 import ListadoCompras from "./components/ListadoCompras";
+import { obtenerCierreYVencimiento } from "./utils/tarjeta";
+
 
 
 export default function App() {
@@ -32,6 +34,8 @@ export default function App() {
     setCompras(compras.filter(c => c.id !== id));
   }
 
+  const { cierre, vencimiento } = obtenerCierreYVencimiento(mesVista);
+
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 max-w-md mx-auto">
@@ -40,6 +44,19 @@ export default function App() {
       </h1>
 
       <MesSelector mes={mesVista} setMes={setMesVista} />
+
+      <div className="bg-white rounded-xl shadow p-3 mb-4 text-sm text-gray-700">
+        <div className="flex justify-between">
+          <span className="font-medium">🔒 Cierre</span>
+          <span>{cierre.toLocaleDateString()}</span>
+        </div>
+
+        <div className="flex justify-between mt-1">
+          <span className="font-medium">💸 Vencimiento</span>
+          <span>{vencimiento.toLocaleDateString()}</span>
+        </div>
+      </div>
+
 
       <ListadoCompras compras={compras} onEliminar={eliminarCompra} />
 

@@ -1,9 +1,12 @@
+import { obtenerMesInicial } from "./fechaCierre";
+
 export default function generarCuotas(compra) {
   const cuotas = [];
-  const fecha = new Date(compra.fechaCompra);
+  // const fecha = new Date(compra.fechaCompra);
+  const fechaBase = obtenerMesInicial(compra.fechaCompra);
 
   for (let i = 0; i < compra.cuotas; i++) {
-    const f = new Date(fecha);
+    const f = new Date(fechaBase);
     f.setMonth(f.getMonth() + i);
 
     cuotas.push({
