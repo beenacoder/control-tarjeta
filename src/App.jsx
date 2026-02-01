@@ -5,6 +5,8 @@ import MesSelector from "./components/MesSelector";
 import CuotasMes from "./components/CuotasMes";
 import ListadoCompras from "./components/ListadoCompras";
 import { obtenerCierreYVencimiento } from "./utils/tarjeta";
+import ConfigTarjeta from "./components/ConfigTarjeta";
+
 
 
 
@@ -14,6 +16,24 @@ export default function App() {
   const [compras, setCompras] = useState(() => {
     return JSON.parse(localStorage.getItem("compras")) || [];
   });
+
+  const [configTarjeta, setConfigTarjeta] = useState(() => {
+    return (
+      JSON.parse(localStorage.getItem("configTarjeta")) || {
+        diaCierre: 28,
+        diaVencimiento: 10,
+      }
+    );
+  });
+
+
+  useEffect(() => {
+    localStorage.setItem(
+      "configTarjeta",
+      JSON.stringify(configTarjeta)
+    );
+  }, [configTarjeta]);
+
 
   useEffect(() => {
     localStorage.setItem("compras", JSON.stringify(compras));
@@ -34,7 +54,9 @@ export default function App() {
     setCompras(compras.filter(c => c.id !== id));
   }
 
-  const { cierre, vencimiento } = obtenerCierreYVencimiento(mesVista);
+  const { cierre, vencimiento } = obtenerCierreYVencimiento(mesVista,
+    configTarjeta.diaCierre,
+    configTarjeta.diaVencimiento);
 
 
   return (
@@ -43,6 +65,7 @@ export default function App() {
         💳 Control de Tarjeta
       </h1>
 
+      <ConfigTarjeta config={configTarjeta} onChange={setConfigTarjeta}/>
       <MesSelector mes={mesVista} setMes={setMesVista} />
 
       <div className="bg-white rounded-xl shadow p-3 mb-4 text-sm text-gray-700">
