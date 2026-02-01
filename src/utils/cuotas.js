@@ -1,113 +1,45 @@
+import { calcularCierreTarjeta } from "./fechasTarjeta";
+
 export default function generarCuotas(compra, config) {
   const cuotas = [];
 
-  const montoCuota =
-    compra.montoTotal / compra.cuotasTotales;
+  const { mesPrimerPago, mesResumen, fechaCierre } = calcularCierreTarjeta(
+    compra.fechaCompra,
+    config.diaCierre
+  );
 
-  const fechaCompra = new Date(compra.fechaCompra);
-  const diaCierre = config.diaCierre;
 
-  let mesInicio = fechaCompra.getMonth();
-  let anioInicio = fechaCompra.getFullYear();
+  console.log("DEBUG CIERRE", {
+    fechaCompra: compra.fechaCompra,
+    fechaCierre,
+    mesResumen: mesResumen.toLocaleDateString(),
+    mesPrimerPago: mesPrimerPago.toLocaleDateString(),
+  });
+  let mes = mesPrimerPago.getMonth();
+  let anio = mesPrimerPago.getFullYear();
 
-  // 🔑 REGLA CLAVE DE TARJETA
-  if (fechaCompra.getDate() > diaCierre) {
-    mesInicio += 1;
-    if (mesInicio > 11) {
-      mesInicio = 0;
-      anioInicio += 1;
-    }
+  // ajustar por cuota actual (ej: 3/12)
+  mes += compra.cuotaActual - 1;
+  while (mes > 11) {
+    mes -= 12;
+    anio += 1;
   }
 
-  // Ajustar por cuota actual (ej: 3/6)
-  mesInicio += compra.cuotaActual - 1;
-
-  for (
-    let nro = compra.cuotaActual;
-    nro <= compra.cuotasTotales;
-    nro++
-  ) {
-    const f = new Date(anioInicio, mesInicio + (nro - compra.cuotaActual), 1);
+  for (let nro = compra.cuotaActual; nro <= compra.cuotas; nro++) {
+    const fecha = new Date(anio, mes + (nro - compra.cuotaActual), 1);
 
     cuotas.push({
       id: `${compra.id}-${nro}`,
       compraId: compra.id,
       descripcion: compra.descripcion,
       nro,
-      total: compra.cuotasTotales,
-      monto: montoCuota,
-      mes: f.getMonth(),
-      anio: f.getFullYear(),
+      total: compra.cuotas,
+      monto: compra.monto,
+      mes: fecha.getMonth(),
+      anio: fecha.getFullYear(),
       pagada: false,
     });
   }
 
   return cuotas;
 }
-
-
-
-// import { obtenerMesInicial } from "./fechaCierre";
-
-// export default function generarCuotas(compra) {
-//   const cuotas = [];
-//   // const fecha = new Date(compra.fechaCompra);
-//   const fechaBase = obtenerMesInicial(compra.fechaCompra);
-
-//   for (let i = 0; i < compra.cuotas; i++) {
-//     const f = new Date(fechaBase);
-//     f.setMonth(f.getMonth() + i);
-
-//     cuotas.push({
-//       compraId: compra.id,
-//       descripcion: compra.descripcion,
-//       nro: i + 1,
-//       total: compra.cuotas,
-//       monto: compra.monto, // 👈 monto mensual fijo
-//       mes: f.getMonth(),
-//       anio: f.getFullYear(),
-//       pagada: false,
-//     });
-//   }
-
-//   return cuotas;
-// }
-
-
-
-
-
-
-
-
-
-// export default function generarCuotas(compra) {
-//   const cuotas = [];
-
-//   const montoCuota = compra.montoTotal / compra.cuotasTotales;
-//   const fechaBase = new Date(compra.fechaCompra);
-
-//   // Ajustamos la fecha a la cuota actual
-//   fechaBase.setMonth(
-//     fechaBase.getMonth() + (compra.cuotaActual - 1)
-//   );
-
-//   for (let nro = compra.cuotaActual; nro <= compra.cuotasTotales; nro++) {
-//     const f = new Date(fechaBase);
-//     f.setMonth(fechaBase.getMonth() + (nro - compra.cuotaActual));
-
-//     cuotas.push({
-//       id: `${compra.id}-${nro}`, // 👈 id único por cuota
-//       compraId: compra.id,
-//       descripcion: compra.descripcion,
-//       nro,
-//       total: compra.cuotasTotales,
-//       monto: montoCuota,
-//       mes: f.getMonth(),       // 0-11
-//       anio: f.getFullYear(),
-//       pagada: false
-//     });
-//   }
-
-//   return cuotas;
-// }

@@ -96,7 +96,7 @@ export default function App() {
       <CuotasMes cuotas={cuotasMes} onEliminar={eliminarCompra} />
 
       <NuevaCompra onAdd={c => setCompras([...compras, c])} />
-      {console.table(compras.flatMap(generarCuotas))}
+      {/* {console.table(compras.flatMap(generarCuotas))} */}
 
     </div>
   );
