@@ -40,7 +40,9 @@ export default function App() {
   }, [compras]);
 
   const cuotasMes = compras
-    .flatMap(generarCuotas)
+    .flatMap(c =>
+      generarCuotas(c, configTarjeta)
+    )
     .filter(
       c =>
         c.mes === mesVista.getMonth() &&
@@ -65,7 +67,7 @@ export default function App() {
         💳 Control de Tarjeta
       </h1>
 
-      <ConfigTarjeta config={configTarjeta} onChange={setConfigTarjeta}/>
+      <ConfigTarjeta config={configTarjeta} onChange={setConfigTarjeta} />
       <MesSelector mes={mesVista} setMes={setMesVista} />
 
       <div className="bg-white rounded-xl shadow p-3 mb-4 text-sm text-gray-700">

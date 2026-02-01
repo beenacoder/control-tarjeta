@@ -1,20 +1,41 @@
-import { obtenerMesInicial } from "./fechaCierre";
-
-export default function generarCuotas(compra) {
+export default function generarCuotas(compra, config) {
   const cuotas = [];
-  // const fecha = new Date(compra.fechaCompra);
-  const fechaBase = obtenerMesInicial(compra.fechaCompra);
 
-  for (let i = 0; i < compra.cuotas; i++) {
-    const f = new Date(fechaBase);
-    f.setMonth(f.getMonth() + i);
+  const montoCuota =
+    compra.montoTotal / compra.cuotasTotales;
+
+  const fechaCompra = new Date(compra.fechaCompra);
+  const diaCierre = config.diaCierre;
+
+  let mesInicio = fechaCompra.getMonth();
+  let anioInicio = fechaCompra.getFullYear();
+
+  // 🔑 REGLA CLAVE DE TARJETA
+  if (fechaCompra.getDate() > diaCierre) {
+    mesInicio += 1;
+    if (mesInicio > 11) {
+      mesInicio = 0;
+      anioInicio += 1;
+    }
+  }
+
+  // Ajustar por cuota actual (ej: 3/6)
+  mesInicio += compra.cuotaActual - 1;
+
+  for (
+    let nro = compra.cuotaActual;
+    nro <= compra.cuotasTotales;
+    nro++
+  ) {
+    const f = new Date(anioInicio, mesInicio + (nro - compra.cuotaActual), 1);
 
     cuotas.push({
+      id: `${compra.id}-${nro}`,
       compraId: compra.id,
       descripcion: compra.descripcion,
-      nro: i + 1,
-      total: compra.cuotas,
-      monto: compra.monto, // 👈 monto mensual fijo
+      nro,
+      total: compra.cuotasTotales,
+      monto: montoCuota,
       mes: f.getMonth(),
       anio: f.getFullYear(),
       pagada: false,
@@ -23,6 +44,34 @@ export default function generarCuotas(compra) {
 
   return cuotas;
 }
+
+
+
+// import { obtenerMesInicial } from "./fechaCierre";
+
+// export default function generarCuotas(compra) {
+//   const cuotas = [];
+//   // const fecha = new Date(compra.fechaCompra);
+//   const fechaBase = obtenerMesInicial(compra.fechaCompra);
+
+//   for (let i = 0; i < compra.cuotas; i++) {
+//     const f = new Date(fechaBase);
+//     f.setMonth(f.getMonth() + i);
+
+//     cuotas.push({
+//       compraId: compra.id,
+//       descripcion: compra.descripcion,
+//       nro: i + 1,
+//       total: compra.cuotas,
+//       monto: compra.monto, // 👈 monto mensual fijo
+//       mes: f.getMonth(),
+//       anio: f.getFullYear(),
+//       pagada: false,
+//     });
+//   }
+
+//   return cuotas;
+// }
 
 
 
