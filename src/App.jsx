@@ -3,15 +3,21 @@ import generarCuotas from "./utils/cuotas";
 import NuevaCompra from "./components/NuevaCompra";
 import MesSelector from "./components/MesSelector";
 import CuotasMes from "./components/CuotasMes";
-import ListadoCompras from "./components/ListadoCompras";
 import { obtenerCierreYVencimiento } from "./utils/tarjeta";
 import ConfigTarjeta from "./components/ConfigTarjeta";
+import ListadoCompras from "./components/ListadoCompras";
+import ModalCompra from "./components/ModalCompra";
 
 
 
 
 export default function App() {
   // const [compras, setCompras] = useState([]);
+  const [compraEditando, setCompraEditando] = useState(null);
+  const [mostrarConfig, setMostrarConfig] = useState(false);
+  // const [mostrarNuevaCompra, setMostrarNuevaCompra] = useState(false);
+  const [modalCompraAbierto, setModalCompraAbierto] = useState(false);
+  const [mostrarCompras, setMostrarCompras] = useState(false);
   const [mesVista, setMesVista] = useState(new Date());
   const [compras, setCompras] = useState(() => {
     return JSON.parse(localStorage.getItem("compras")) || [];
@@ -56,9 +62,37 @@ export default function App() {
     setCompras(compras.filter(c => c.id !== id));
   }
 
+  function editarCompra(compraActualizada) {
+    setCompras(
+      compras.map(c =>
+        c.id === compraActualizada.id
+          ? compraActualizada
+          : c
+      )
+    );
+
+    setCompraEditando(null);
+  }
+
   const { cierre, vencimiento } = obtenerCierreYVencimiento(mesVista,
     configTarjeta.diaCierre,
     configTarjeta.diaVencimiento);
+
+
+  function abrirNuevaCompra() {
+    setCompraEditando(null);
+    setModalCompraAbierto(true);
+  }
+
+  function abrirEditarCompra(compra) {
+    setCompraEditando(compra);
+    setModalCompraAbierto(true);
+  }
+
+  function cerrarModalCompra() {
+    setCompraEditando(null);
+    setModalCompraAbierto(false);
+  }
 
 
   return (
@@ -67,35 +101,101 @@ export default function App() {
         💳 Control de Tarjeta
       </h1>
 
-      <ConfigTarjeta config={configTarjeta} onChange={setConfigTarjeta} />
+      <div className="flex justify-end mb-3">
+        <button
+          onClick={() => setMostrarConfig(!mostrarConfig)}
+          className="text-sm text-blue-600 font-medium"
+        >
+          {mostrarConfig ? "Cerrar configuración" : "⚙️ Configurar tarjeta"}
+        </button>
+      </div>
+
+      {mostrarConfig && (
+        <ConfigTarjeta
+          config={configTarjeta}
+          onChange={setConfigTarjeta}
+        />
+      )}
       <MesSelector mes={mesVista} setMes={setMesVista} />
 
-      <div className="bg-white rounded-xl shadow p-3 mb-4 text-sm text-gray-700">
-        <div className="flex justify-between">
-          <span className="font-medium">🔒 Cierre</span>
-          <span>{cierre.toLocaleDateString()}</span>
+      <div className="bg-white rounded-2xl shadow p-5 mb-4">
+        <div className="text-center mb-5">
+          <div className="text-sm text-gray-500 mb-1">Total a pagar</div>
+          <div className="text-4xl font-bold text-slate-800">
+            ${totalMes.toLocaleString("es-AR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </div>
         </div>
 
-        <div className="flex justify-between mt-1">
-          <span className="font-medium">💸 Vencimiento</span>
-          <span>{vencimiento.toLocaleDateString()}</span>
+        <div className="grid grid-cols-2 gap-3 border-t pt-4">
+          <div className="text-center">
+            <div className="text-xs text-gray-500">Cierre</div>
+            <div className="font-semibold text-slate-700">
+              {cierre.toLocaleDateString("es-AR", {
+                day: "2-digit",
+                month: "2-digit",
+              })}
+            </div>
+          </div>
+
+          <div className="text-center border-l">
+            <div className="text-xs text-gray-500">Vencimiento</div>
+            <div className="font-semibold text-slate-700">
+              {vencimiento.toLocaleDateString("es-AR", {
+                day: "2-digit",
+                month: "2-digit",
+              })}
+            </div>
+          </div>
         </div>
       </div>
 
+      <CuotasMes cuotas={cuotasMes} />
 
-      <ListadoCompras compras={compras} onEliminar={eliminarCompra} />
-
-
-      <div className="bg-white rounded-xl shadow p-4 mb-4 text-center">
-        <div className="text-gray-500 text-sm">Total del mes</div>
-        <div className="text-3xl font-bold">
-          ${totalMes.toFixed(2)}
-        </div>
+      <div className="mb-3">
+        <button
+          onClick={() => setMostrarCompras(!mostrarCompras)}
+          className="w-full bg-white border border-slate-200 text-slate-700 rounded-xl py-3 font-medium"
+        >
+          {mostrarCompras ? "Cerrar compras" : "Administrar compras"}
+        </button>
       </div>
 
-      <CuotasMes cuotas={cuotasMes} onEliminar={eliminarCompra} />
+      {mostrarCompras && (
+        <ListadoCompras
+          compras={compras}
+          onEliminar={eliminarCompra}
+          onEditar={abrirEditarCompra}
+        />
+      )}
 
-      <NuevaCompra onAdd={c => setCompras([...compras, c])} />
+      <div className="mb-4">
+        <button
+          onClick={abrirNuevaCompra}
+          className="w-full bg-blue-600 text-white rounded-xl py-3 font-semibold"
+        >
+          + Agregar compra
+        </button>
+      </div>
+
+      <ModalCompra
+        abierto={modalCompraAbierto}
+        onCerrar={cerrarModalCompra}
+      >
+        <NuevaCompra
+          compraEditando={compraEditando}
+          onAdd={c => {
+            setCompras([...compras, c]);
+            cerrarModalCompra();
+          }}
+          onEdit={c => {
+            editarCompra(c);
+            cerrarModalCompra();
+          }}
+        />
+      </ModalCompra>
       {/* {console.table(compras.flatMap(generarCuotas))} */}
 
     </div>

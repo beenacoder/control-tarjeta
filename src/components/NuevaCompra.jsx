@@ -1,10 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-
-
-
-
-export default function NuevaCompra({ onAdd }) {
+export default function NuevaCompra({ onAdd, compraEditando, onEdit }) {
   const [form, setForm] = useState({
     descripcion: "",
     monto: "",
@@ -13,26 +9,19 @@ export default function NuevaCompra({ onAdd }) {
     fechaCompra: "",
   });
 
-  function submit() {
-    if (!form.descripcion || !form.monto || !form.cuotas) return;
-
-    const cuotas = Number(form.cuotas);
-    const cuotaActual = Number(form.cuotaActual);
-
-    if (cuotaActual < 1 || cuotaActual > cuotas) {
-      alert("La cuota actual debe estar entre 1 y el total de cuotas");
-      return;
+  useEffect(() => {
+    if (compraEditando) {
+      setForm({
+        descripcion: compraEditando.descripcion,
+        monto: compraEditando.monto,
+        cuotas: compraEditando.cuotas,
+        cuotaActual: compraEditando.cuotaActual,
+        fechaCompra: compraEditando.fechaCompra,
+      });
     }
+  }, [compraEditando]);
 
-    onAdd({
-      id: crypto.randomUUID(),
-      descripcion: form.descripcion,
-      monto: Number(form.monto), // 👈 monto mensual
-      cuotas,
-      cuotaActual,
-      fechaCompra: form.fechaCompra,
-    });
-
+  function limpiarFormulario() {
     setForm({
       descripcion: "",
       monto: "",
@@ -42,9 +31,44 @@ export default function NuevaCompra({ onAdd }) {
     });
   }
 
+  function submit() {
+    if (!form.descripcion || !form.monto || !form.cuotas || !form.fechaCompra) {
+      alert("Completá todos los campos");
+      return;
+    }
+
+    const cuotas = Number(form.cuotas);
+    const cuotaActual = Number(form.cuotaActual);
+    const monto = Number(form.monto);
+
+    if (cuotaActual < 1 || cuotaActual > cuotas) {
+      alert("La cuota actual debe estar entre 1 y el total de cuotas");
+      return;
+    }
+
+    const datosCompra = {
+      id: compraEditando ? compraEditando.id : crypto.randomUUID(),
+      descripcion: form.descripcion,
+      monto,
+      cuotas,
+      cuotaActual,
+      fechaCompra: form.fechaCompra,
+    };
+
+    if (compraEditando) {
+      onEdit(datosCompra);
+    } else {
+      onAdd(datosCompra);
+    }
+
+    limpiarFormulario();
+  }
+
   return (
-    <div className="bg-white rounded-xl shadow p-4">
-      <h3 className="font-semibold mb-2">Nueva compra</h3>
+    <div className="pb-2">
+      <h3 className="font-semibold mb-3">
+        {compraEditando ? "Editar compra" : "Nueva compra"}
+      </h3>
 
       <input
         type="text"
@@ -82,7 +106,8 @@ export default function NuevaCompra({ onAdd }) {
         />
       </div>
 
-      <label className="text-gray-600">Fecha de compra</label>
+      <label className="text-sm text-gray-600">Fecha de compra</label>
+
       <input
         type="date"
         value={form.fechaCompra}
@@ -92,9 +117,9 @@ export default function NuevaCompra({ onAdd }) {
 
       <button
         onClick={submit}
-        className="w-full bg-blue-600 text-white rounded py-2"
+        className="w-full bg-blue-600 text-white rounded-lg py-2 font-medium"
       >
-        Agregar
+        {compraEditando ? "Guardar cambios" : "Agregar"}
       </button>
     </div>
   );

@@ -1,41 +1,50 @@
-export default function CuotasMes({ cuotas, onEliminar }) {
-  if (!cuotas.length)
+export default function CuotasMes({ cuotas }) {
+  if (!cuotas.length) {
     return (
-      <p className="text-center text-gray-400 mb-4">
-        No hay cuotas este mes
-      </p>
+      <div className="bg-white rounded-xl shadow p-6 text-center text-gray-400 mb-4">
+        No hay cuotas para este mes
+      </div>
     );
+  }
 
   return (
-    <div className="space-y-2 mb-4">
-      {cuotas.map((c, i) => (
+    <div className="bg-white rounded-xl shadow mb-4 overflow-hidden">
+      <div className="px-4 py-3 border-b">
+        <h3 className="font-semibold text-slate-800">Cuotas del mes</h3>
+      </div>
+
+      {cuotas.map(c => (
         <div
-          key={i}
-          className="bg-white p-3 rounded-lg shadow flex justify-between items-center"
+          key={c.id}
+          className="px-4 py-3 border-b last:border-b-0 flex justify-between items-center"
         >
           <div>
-            <div className="font-medium">{c.descripcion}</div>
-            <div className="text-sm text-gray-500">
-              Cuota {c.nro}/{c.total}
+            <div className="font-medium text-slate-800">
+              {c.descripcion}
+            </div>
+
+            <div className="text-sm text-gray-500 mt-1">
+              Cuota {c.nro} de {c.total}
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="font-semibold">
-              ${c.monto.toFixed(2)}
+          <div className="text-right">
+            <div className="font-semibold text-slate-800">
+              ${c.monto.toLocaleString("es-AR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </div>
 
-            <button
+            {/* <button
               onClick={() => onEliminar(c.compraId)}
-              className="text-red-500 hover:text-red-700"
-              title="Eliminar compra"
+              className="text-xs text-gray-400 hover:text-red-500 mt-1"
             >
-              ❌
-            </button>
+              Eliminar compra
+            </button> */}
           </div>
         </div>
       ))}
     </div>
   );
 }
-
