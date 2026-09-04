@@ -1,8 +1,8 @@
 export default function ConfigTarjeta({ config, onChange }) {
   return (
-    <div className="bg-white rounded-xl shadow p-4 mb-4">
-      <h3 className="font-semibold mb-3">
-        ⚙️ Configuración de tarjeta
+    <div className="pb-2" >
+      <h3 className="text-lg font-semibold text-slate-800 mb-4">
+        Configuración de tarjeta
       </h3>
 
       <div className="flex gap-3">
@@ -44,6 +44,6 @@ export default function ConfigTarjeta({ config, onChange }) {
           />
         </div>
       </div>
-    </div>
+    </div >
   );
 }
